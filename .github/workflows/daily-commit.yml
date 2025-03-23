@@ -12,7 +12,7 @@ jobs:
   create-daily-commit:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # This is the important line
+      contents: write
     
     steps:
       - name: Checkout repository
@@ -28,20 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install python-dotenv
       
-      - name: Create .env file
-        run: |
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
-          echo "CUSTOM_VAR=example_value" >> .env
-      
       - name: Generate daily update by 24f2006438@ds.study.iitm.ac.in
         run: python eight.py
       
-      - name: Commit changes
-        env:
-          PAT: ${{ secrets.PAT }}
-        run: |
-          git config --global user.email "24f2006438@ds.study.iitm.ac.in"
-          git config --global user.name "GitHub Actions"
-          git add .
-          git commit -m "Daily automated update $(date +%Y-%m-%d)"
-          git push https://$PAT@github.com/algsoch/daily-commit-automation.git
+      - name: Commit and push if there are changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Daily automated update"
+          commit_user_name: "GitHub Actions"
+          commit_user_email: "24f2006438@ds.study.iitm.ac.in"
+          commit_author: "GitHub Actions <24f2006438@ds.study.iitm.ac.in>"
